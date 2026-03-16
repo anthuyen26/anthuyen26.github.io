@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="site-title">Vantu Shop</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --c-primary:#6366f1;--c-secondary:#06b6d4;
+  --c-bg:#09090b;--c-nav:#111113;
+  --surface:#111113;--surface2:#18181c;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+  --text:#ececec;--muted:#52525b;--subtle:#71717a;
+}
+body{background:var(--c-bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;padding-bottom:72px;}
+#bg-layer{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;opacity:0;pointer-events:none;transition:opacity .4s;}
+
+/* NAV */
+.nav{background:var(--c-nav);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;backdrop-filter:blur(14px);}
+.nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:11px 16px;gap:10px;}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.logo-icon{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--c-primary),var(--c-secondary));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:16px;font-weight:900;color:#fff;flex-shrink:0;}
+.logo-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--text);}
+.nav-btns{display:flex;gap:7px;}
+.nbtn{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;font-size:12.5px;font-weight:600;text-decoration:none;border:none;cursor:pointer;font-family:inherit;transition:background .15s;}
+.nbtn.tele{background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.2);color:#22d3ee;}
+.nbtn.tele:hover{background:rgba(34,211,238,.18);}
+.nbtn.menu{background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--subtle);}
+.nbtn.menu:hover{background:rgba(255,255,255,.1);color:var(--text);}
+.nbtn.adm{background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--subtle);padding:7px 10px;}
+.nbtn.adm:hover{color:var(--text);}
+
+/* DRAWER */
+.drw-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;backdrop-filter:blur(4px);}
+.drw-overlay.open{display:block;}
+.drw{position:fixed;top:0;left:-290px;width:272px;height:100%;background:#0f0f12;border-right:1px solid var(--border2);z-index:301;transition:left .26s cubic-bezier(.4,0,.2,1);overflow-y:auto;display:flex;flex-direction:column;}
+.drw.open{left:0;}
+.drw-head{padding:16px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.drw-logo{display:flex;align-items:center;gap:9px;}
+.drw-logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--c-primary),var(--c-secondary));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:15px;font-weight:900;color:#fff;}
+.drw-logo-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;}
+.drw-x{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--subtle);width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:13px;}
+.drw-sec{padding:12px 10px 4px;}
+.drw-sec-ttl{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;padding:0 6px;margin-bottom:5px;}
+.drw-item{display:flex;align-items:center;gap:9px;padding:9px 9px;border-radius:9px;text-decoration:none;color:var(--subtle);font-size:13px;font-weight:600;cursor:pointer;transition:background .13s,color .13s;margin-bottom:1px;}
+.drw-item:hover{background:rgba(255,255,255,.06);color:var(--text);}
+.drw-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.drw-tele{margin:12px 10px;display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);color:#22d3ee;padding:10px;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px;}
+
+/* BOTTOM BAR */
+.botbar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--c-nav);border-top:1px solid var(--border);padding:6px 0 8px;}
+.bot-inner{display:flex;justify-content:space-around;}
+.bot-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:var(--muted);font-size:9.5px;font-weight:600;cursor:pointer;padding:0 8px;transition:color .13s;min-width:48px;}
+.bot-item:hover,.bot-item.active{color:var(--c-primary);}
+.bot-item-ico{font-size:19px;line-height:1;}
+@media(max-width:680px){.botbar{display:block;}.nbtn.tele span{display:none;}}
+
+/* HERO */
+.hero{position:relative;z-index:1;text-align:center;padding:50px 20px 36px;}
+.hero-glow{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:680px;height:320px;border-radius:50%;background:radial-gradient(ellipse,rgba(99,102,241,.14) 0%,transparent 70%);pointer-events:none;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:100px;padding:5px 13px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--subtle);margin-bottom:16px;}
+.hero-dot{width:6px;height:6px;border-radius:50%;background:#22d3ee;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,5vw,3rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;background:linear-gradient(160deg,#fff 0%,#fff 50%,#555 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:11px;}
+.hero-sub{color:var(--muted);font-size:14px;max-width:450px;margin:0 auto 22px;line-height:1.7;}
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;}
+.chip{border-radius:100px;padding:5px 12px;font-size:11.5px;font-weight:600;border:1px solid var(--border);background:var(--surface);color:var(--subtle);}
+.chip.blue{border-color:rgba(99,102,241,.3);color:#818cf8;background:rgba(99,102,241,.07);}
+.chip.cyan{border-color:rgba(34,211,238,.3);color:#22d3ee;background:rgba(34,211,238,.07);}
+.chip.pink{border-color:rgba(236,72,153,.3);color:#f472b6;background:rgba(236,72,153,.07);}
+.chip.red{border-color:rgba(248,113,113,.3);color:#f87171;background:rgba(248,113,113,.07);}
+
+/* MAIN */
+.main{max-width:1100px;margin:0 auto;padding:0 15px 28px;position:relative;z-index:1;}
+.sec-hd{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.sec-hd::before{content:'';width:3px;height:13px;background:var(--c-primary);border-radius:2px;}
+.sec-hd-txt{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--subtle);}
+
+/* PRODUCT GRID */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:11px;margin-bottom:30px;}
+
+/* PRODUCT CARD */
+.pcard{background:var(--surface);border:1px solid var(--border);border-radius:15px;overflow:hidden;position:relative;transition:transform .2s,box-shadow .2s,border-color .2s;animation:fadeUp .4s ease both;}
+.pcard:hover{transform:translateY(-4px);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.pcard.blue{border-top:2px solid rgba(99,102,241,.4);}
+.pcard.blue:hover{background:#0d0d18;border-color:rgba(99,102,241,.6);box-shadow:0 10px 34px rgba(0,0,0,.4),0 0 34px rgba(99,102,241,.1);}
+.pcard.cyan{border-top:2px solid rgba(34,211,238,.4);}
+.pcard.cyan:hover{background:#080f12;border-color:rgba(34,211,238,.6);box-shadow:0 10px 34px rgba(0,0,0,.4),0 0 34px rgba(34,211,238,.1);}
+.pcard.pink{border-top:2px solid rgba(236,72,153,.4);}
+.pcard.pink:hover{background:#130810;border-color:rgba(236,72,153,.6);box-shadow:0 10px 34px rgba(0,0,0,.4),0 0 34px rgba(236,72,153,.1);}
+.pcard.red{border-top:2px solid rgba(248,113,113,.4);}
+.pcard.red:hover{background:#130808;border-color:rgba(248,113,113,.6);box-shadow:0 10px 34px rgba(0,0,0,.4),0 0 34px rgba(248,113,113,.1);}
+
+.pcard-head{padding:15px 15px 11px;display:flex;align-items:center;gap:11px;}
+.pcard-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;border:1px solid var(--border);}
+.pcard.blue .pcard-ico{background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.2);}
+.pcard.cyan .pcard-ico{background:rgba(34,211,238,.1);border-color:rgba(34,211,238,.2);}
+.pcard.pink .pcard-ico{background:rgba(236,72,153,.1);border-color:rgba(236,72,153,.2);}
+.pcard.red  .pcard-ico{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.2);}
+.pcard-info{flex:1;min-width:0;}
+.pcard-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:2px;}
+.pcard.blue .pcard-name{color:#818cf8;}.pcard.cyan .pcard-name{color:#22d3ee;}.pcard.pink .pcard-name{color:#f472b6;}.pcard.red .pcard-name{color:#f87171;}
+.pcard-desc{font-size:10.5px;color:var(--muted);line-height:1.55;}
+
+.sbadge{position:absolute;top:11px;right:11px;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;}
+.sbadge.ok{background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.2);}
+.sbadge.low{background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.2);}
+.sbadge.empty{background:rgba(248,113,113,.12);color:#f87171;border:1px solid rgba(248,113,113,.2);}
+
+.pcard-plans{padding:0 11px 11px;display:flex;flex-direction:column;gap:6px;}
+.plan-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:background .13s,border-color .13s,transform .13s;}
+.pcard.blue .plan-row:hover{background:rgba(99,102,241,.07);border-color:rgba(99,102,241,.25);transform:translateX(3px);}
+.pcard.cyan .plan-row:hover{background:rgba(34,211,238,.07);border-color:rgba(34,211,238,.25);transform:translateX(3px);}
+.pcard.pink .plan-row:hover{background:rgba(236,72,153,.07);border-color:rgba(236,72,153,.25);transform:translateX(3px);}
+.pcard.red  .plan-row:hover{background:rgba(248,113,113,.07);border-color:rgba(248,113,113,.25);transform:translateX(3px);}
+.plan-l{display:flex;flex-direction:column;gap:2px;}
+.plan-n{font-size:12px;font-weight:600;color:#ccc;}
+.plan-s{font-size:10px;color:var(--muted);}
+.plan-r{display:flex;flex-direction:column;align-items:flex-end;gap:1px;flex-shrink:0;}
+.plan-p{font-size:14px;font-weight:800;}
+.pcard.blue .plan-p{color:#818cf8;}.pcard.cyan .plan-p{color:#22d3ee;}.pcard.pink .plan-p{color:#f472b6;}.pcard.red .plan-p{color:#f87171;}
+.plan-c{font-size:9.5px;color:var(--muted);}
+
+/* MODAL */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(14px);z-index:500;align-items:center;justify-content:center;padding:18px;}
+.modal-ov.open{display:flex;}
+.modal-box{background:#141416;border:1px solid var(--border2);border-radius:18px;padding:22px;width:100%;max-width:360px;animation:popIn .18s ease;}
+@keyframes popIn{from{opacity:0;transform:scale(.93) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.m-chip{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:7px 11px;margin-bottom:13px;font-size:12px;color:var(--subtle);font-weight:600;}
+.m-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;margin-bottom:3px;}
+.m-sub{color:var(--muted);font-size:11.5px;margin-bottom:13px;}
+.m-info{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:11px;margin-bottom:13px;}
+.m-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);}
+.m-row:last-child{border-bottom:none;}
+.m-lbl{font-size:11.5px;color:var(--subtle);}
+.m-val{font-size:12.5px;font-weight:700;}
+.m-note-lbl{font-size:10px;color:var(--subtle);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;}
+.m-note{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:8px;padding:8px 11px;color:var(--text);font-size:12.5px;outline:none;font-family:inherit;margin-bottom:12px;}
+.m-note:focus{border-color:var(--c-primary);}
+.btn-tele{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#229ED9,#1a7fbf);color:#fff;text-decoration:none;padding:11px;border-radius:10px;font-weight:700;font-size:13px;margin-bottom:8px;border:none;cursor:pointer;font-family:inherit;width:100%;transition:opacity .15s;}
+.btn-tele:hover{opacity:.88;}
+.m-hint{text-align:center;font-size:10px;color:var(--muted);margin-bottom:11px;}
+.btn-cls{width:100%;padding:9px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12.5px;cursor:pointer;font-family:inherit;transition:background .13s;}
+.btn-cls:hover{background:rgba(255,255,255,.08);color:var(--text);}
+
+/* FOOTER */
+footer{text-align:center;padding:18px;color:var(--muted);font-size:11.5px;border-top:1px solid var(--border);position:relative;z-index:1;}
+
+/* PASSWORD GATE */
+.pw-gate{display:none;position:fixed;inset:0;background:#09090b;z-index:10000;align-items:center;justify-content:center;}
+.pw-gate.open{display:flex;}
+.pw-box{background:#111113;border:1px solid var(--border2);border-radius:16px;padding:28px 24px;width:100%;max-width:320px;text-align:center;}
+.pw-ico{font-size:30px;margin-bottom:10px;}
+.pw-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:5px;}
+.pw-sub{color:var(--muted);font-size:12px;margin-bottom:18px;}
+.pw-inp{width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:11px;border-radius:9px;font-size:15px;outline:none;font-family:inherit;text-align:center;letter-spacing:.15em;margin-bottom:10px;}
+.pw-inp:focus{border-color:var(--c-primary);}
+.pw-err{color:#f87171;font-size:11.5px;margin-bottom:9px;display:none;}
+.btn-p{background:linear-gradient(135deg,var(--c-primary),var(--c-secondary));color:#fff;border:none;padding:10px;border-radius:9px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;width:100%;margin-bottom:8px;transition:opacity .15s;}
+.btn-p:hover{opacity:.88;}
+.btn-s{background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--subtle);padding:9px;border-radius:9px;font-size:12.5px;cursor:pointer;font-family:inherit;width:100%;}
+
+/* ADMIN */
+#admin{display:none;position:fixed;inset:0;background:#08080a;z-index:9999;overflow-y:auto;}
+.adm-wrap{max-width:740px;margin:0 auto;padding:22px 15px;}
+.adm-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.adm-title{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;}
+.adm-tabs{display:flex;gap:5px;margin-bottom:18px;flex-wrap:wrap;}
+.atab{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--surface);color:var(--subtle);cursor:pointer;transition:all .13s;}
+.atab.active{background:var(--c-primary);border-color:var(--c-primary);color:#fff;}
+.asec{display:none;}
+.asec.active{display:block;}
+.acard{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:17px;margin-bottom:13px;}
+.acard-ttl{font-family:'Syne',sans-serif;font-size:12.5px;font-weight:700;color:#818cf8;margin-bottom:13px;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px;}
+.fg label{font-size:10px;color:var(--subtle);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:7px;font-size:12.5px;outline:none;font-family:inherit;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--c-primary);}
+.fg select option{background:#1a1a1a;}
+.fg textarea{resize:vertical;min-height:65px;}
+.btn-a{background:linear-gradient(135deg,var(--c-primary),var(--c-secondary));color:#fff;border:none;padding:9px 18px;border-radius:8px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit;transition:opacity .13s;}
+.btn-a:hover{opacity:.88;}
+.btn-d{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.2);color:#f87171;padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:700;font-family:inherit;}
+.btn-ok{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.2);color:#4ade80;padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:700;font-family:inherit;}
+.btn-sec{background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--subtle);padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:700;font-family:inherit;}
+.acc-item{display:flex;align-items:center;gap:9px;padding:9px 11px;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:9px;margin-bottom:6px;}
+.acc-item.sold{opacity:.38;}
+.ai-info{flex:1;min-width:0;}
+.ai-type{font-size:10px;color:var(--muted);margin-bottom:1px;}
+.ai-cred{font-size:12px;font-weight:700;}
+.ai-note{font-size:10.5px;color:var(--subtle);margin-top:1px;}
+.ai-btns{display:flex;gap:5px;flex-shrink:0;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:16px;}
+.sbox{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+.snum{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:2px;}
+.slbl{font-size:10px;color:var(--muted);}
+.crow{display:flex;flex-wrap:wrap;gap:11px;margin-bottom:11px;}
+.ci{display:flex;flex-direction:column;gap:4px;align-items:center;}
+.ci label{font-size:9.5px;color:var(--muted);}
+.ci input[type=color]{width:42px;height:28px;border:1px solid var(--border);border-radius:5px;cursor:pointer;background:none;padding:2px;}
+.range-row{display:flex;align-items:center;gap:9px;}
+.range-row input[type=range]{flex:1;accent-color:var(--c-primary);}
+.toast{position:fixed;bottom:78px;right:18px;z-index:99999;background:#1a1a1f;border:1px solid var(--border2);border-radius:10px;padding:10px 15px;font-size:12.5px;font-weight:600;color:var(--text);box-shadow:0 8px 26px rgba(0,0,0,.5);display:none;animation:toastIn .22s ease;}
+.toast.show{display:block;}
+.toast.ok{border-color:rgba(74,222,128,.3);color:#4ade80;}
+.toast.err{border-color:rgba(248,113,113,.3);color:#f87171;}
+@keyframes toastIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:580px){.fgrid{grid-template-columns:1fr;}.stats{grid-template-columns:repeat(2,1fr);}.pgrid{grid-template-columns:1fr;}}
+#fx-canvas{position:fixed;inset:0;z-index:2;pointer-events:none;}
+</style>
+</head>
+<body>
+
+<canvas id="fx-canvas"></canvas>
+
+<div id="bg-layer"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="#">
+      <div class="logo-icon" id="nl-char">V</div>
+      <span class="logo-name" id="nl-name">Vantu Shop</span>
+    </a>
+    <div class="nav-btns">
+      <button class="nbtn menu" onclick="openDrawer()">☰ Menu</button>
+      <button class="nbtn tele" id="nav-tele" onclick="openTele()">✈️ <span>@khoga36</span></button>
+      <button class="nbtn adm" onclick="openPwGate()">⚙️</button>
+    </div>
+  </div>
+</nav>
+
+<!-- DRAWER -->
+<div class="drw-overlay" id="drw-ov" onclick="closeDrawer()"></div>
+<div class="drw" id="drw">
+  <div class="drw-head">
+    <div class="drw-logo">
+      <div class="drw-logo-icon" id="dl-char">V</div>
+      <span class="drw-logo-name" id="dl-name">Vantu Shop</span>
+    </div>
+    <button class="drw-x" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drw-sec">
+    <div class="drw-sec-ttl">Menu</div>
+    <div class="drw-item" onclick="closeDrawer()"><div class="drw-icon" style="background:rgba(99,102,241,.12)">🏠</div>Trang Chủ</div>
+    <div class="drw-item" onclick="openTele()"><div class="drw-icon" style="background:rgba(34,211,238,.12)">✈️</div>Liên Hệ Telegram</div>
+  </div>
+  <div class="drw-sec">
+    <div class="drw-sec-ttl">Tài Khoản Premium</div>
+    <div class="drw-item" onclick="scrollTo('chatgpt');closeDrawer()"><div class="drw-icon" style="background:rgba(99,102,241,.12)">🤖</div>ChatGPT Plus</div>
+    <div class="drw-item" onclick="scrollTo('youtube');closeDrawer()"><div class="drw-icon" style="background:rgba(34,211,238,.12)">▶️</div>YouTube Premium</div>
+    <div class="drw-item" onclick="scrollTo('capcut');closeDrawer()"><div class="drw-icon" style="background:rgba(236,72,153,.12)">🎬</div>CapCut Pro</div>
+    <div class="drw-item" onclick="scrollTo('netflix');closeDrawer()"><div class="drw-icon" style="background:rgba(248,113,113,.12)">🎥</div>Netflix Premium</div>
+  </div>
+  <div class="drw-tele" id="drw-tele-btn" onclick="openTele()" style="cursor:pointer;">✈️ Nhắn Telegram ngay</div>
+</div>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge"><div class="hero-dot"></div>Chính hãng · Giao nhanh · Bảo hành</div>
+  <h1 id="hero-title">Vantu Shop</h1>
+  <p class="hero-sub" id="hero-sub">Chuyên cung cấp tài khoản Premium giá tốt nhất. Uy tín — Nhanh chóng — Hỗ trợ 24/7.</p>
+  <div class="chips">
+    <span class="chip blue">🤖 ChatGPT Plus</span>
+    <span class="chip cyan">▶️ YouTube Premium</span>
+    <span class="chip pink">🎬 CapCut Pro</span>
+    <span class="chip red">🎥 Netflix Premium</span>
+  </div>
+</header>
+
+<!-- PRODUCTS -->
+<main class="main">
+  <div class="sec-hd"><div class="sec-hd-txt">Sản phẩm</div></div>
+  <div class="pgrid" id="pgrid"></div>
+</main>
+
+<footer>© 2025 <span id="ft-name">Vantu Shop</span> · <span id="ft-tele" onclick="openTele()" style="color:var(--c-primary);cursor:pointer;">@khoga36</span> · Liên hệ hỗ trợ 24/7</footer>
+
+<!-- BOTTOM BAR -->
+<div class="botbar">
+  <div class="bot-inner">
+    <div class="bot-item active" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+      <div class="bot-item-ico">🏠</div>Trang chủ
+    </div>
+    <div class="bot-item" onclick="scrollTo('chatgpt')">
+      <div class="bot-item-ico">🤖</div>ChatGPT
+    </div>
+    <div class="bot-item" onclick="scrollTo('youtube')">
+      <div class="bot-item-ico">▶️</div>YouTube
+    </div>
+    <div class="bot-item" onclick="openDrawer()">
+      <div class="bot-item-ico">☰</div>Menu
+    </div>
+    <div class="bot-item" id="bot-tele" onclick="openTele()">
+      <div class="bot-item-ico">✈️</div>Tele
+    </div>
+  </div>
+</div>
+
+<!-- BUY MODAL -->
+<div class="modal-ov" id="buyModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="m-chip" id="m-chip"></div>
+    <div class="m-title">🛒 Xác nhận mua</div>
+    <div class="m-sub">Nhắn Telegram để hoàn tất đơn hàng!</div>
+    <div class="m-info">
+      <div class="m-row"><span class="m-lbl">Sản phẩm</span><span class="m-val" id="m-name"></span></div>
+      <div class="m-row"><span class="m-lbl">Giá</span><span class="m-val" style="color:#4ade80;font-size:14px;" id="m-price"></span></div>
+      <div class="m-row"><span class="m-lbl">Tồn kho</span><span class="m-val" id="m-stock"></span></div>
+    </div>
+    <label class="m-note-lbl">Ghi chú (tuỳ chọn)</label>
+    <input class="m-note" id="m-note" type="text" placeholder="VD: email, yêu cầu thêm...">
+    <button class="btn-tele" id="m-btn" onclick="goTele()">✈️ Nhắn Telegram mua ngay</button>
+    <p class="m-hint">Tin nhắn đã điền sẵn — chỉ cần bấm gửi!</p>
+    <button class="btn-cls" onclick="closeModal()">✕ Đóng</button>
+  </div>
+</div>
+
+<!-- PASSWORD GATE -->
+<div class="pw-gate" id="pw-gate">
+  <div class="pw-box">
+    <div class="pw-ico">🔐</div>
+    <div class="pw-title">Admin Panel</div>
+    <div class="pw-sub">Nhập mật khẩu để tiếp tục</div>
+    <input class="pw-inp" id="pw-inp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPw()">
+    <div class="pw-err" id="pw-err">❌ Sai mật khẩu!</div>
+    <button class="btn-p" onclick="checkPw()">🔓 Vào Admin</button>
+    <button class="btn-s" onclick="closePwGate()">✕ Đóng</button>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="admin">
+  <div class="adm-wrap">
+    <div class="adm-topbar">
+      <div>
+        <div class="adm-title">⚙️ Admin Panel</div>
+        <div style="font-size:11.5px;color:var(--muted);margin-top:2px;">Quản lý kho acc · Tuỳ chỉnh giao diện</div>
+      </div>
+      <button class="btn-cls" style="padding:8px 14px;border-radius:8px;" onclick="closeAdmin()">✕ Đóng</button>
+    </div>
+    <div class="adm-tabs">
+      <div class="atab active" onclick="switchTab('stock')">📦 Kho acc</div>
+      <div class="atab" onclick="switchTab('add')">➕ Thêm acc</div>
+      <div class="atab" onclick="switchTab('design')">🎨 Giao diện</div>
+      <div class="atab" onclick="switchTab('security')">🔐 Bảo mật</div>
+    </div>
+
+    <!-- KHO ACC -->
+    <div class="asec active" id="tab-stock">
+      <div class="stats" id="stats"></div>
+      <div class="acard">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
+          <div class="acard-ttl" style="margin:0;">📋 Danh sách acc</div>
+          <select id="fl-type" onchange="renderList()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:5px 9px;border-radius:6px;font-size:11.5px;outline:none;"></select>
+        </div>
+        <div id="acc-list"></div>
+      </div>
+    </div>
+
+    <!-- THÊM ACC -->
+    <div class="asec" id="tab-add">
+      <div class="acard">
+        <div class="acard-ttl">➕ Thêm acc mới</div>
+        <div class="fgrid">
+          <div class="fg"><label>Loại sản phẩm</label>
+            <select id="a-type">
+              <option value="ChatGPT Plus Riêng Tư 1 tháng">🤖 ChatGPT Plus Riêng Tư 1 tháng</option>
+              <option value="ChatGPT Plus Team Chính Chủ 1 tháng">👥 ChatGPT Plus Team 1 tháng</option>
+              <option value="YouTube Premium 1 tháng">▶️ YouTube Premium 1 tháng</option>
+              <option value="YouTube Premium 6 tháng">▶️ YouTube Premium 6 tháng</option>
+              <option value="YouTube Premium 12 tháng">▶️ YouTube Premium 12 tháng</option>
+              <option value="YouTube Premium 18 tháng">▶️ YouTube Premium 18 tháng</option>
+              <option value="CapCut Pro 35 Ngày">🎬 CapCut Pro 35 Ngày</option>
+              <option value="CapCut Pro 6 Tháng">🎬 CapCut Pro 6 Tháng</option>
+              <option value="Netflix Premium 4K">🎥 Netflix Premium 4K</option>
+            </select>
+          </div>
+          <div class="fg"><label>Email / Username</label><input type="text" id="a-email" placeholder="abc@gmail.com"></div>
+          <div class="fg"><label>Mật khẩu</label><input type="text" id="a-pass" placeholder="Pass123!@#"></div>
+          <div class="fg"><label>Ghi chú</label><input type="text" id="a-note" placeholder="2FA, hạn tới..."></div>
+        </div>
+        <button class="btn-a" onclick="addAcc()">➕ Thêm vào kho</button>
+      </div>
+      <div class="acard">
+        <div class="acard-ttl">📥 Thêm nhiều acc (email|pass|ghichú)</div>
+        <div class="fg" style="margin-bottom:10px;"><label>Loại sản phẩm</label>
+          <select id="b-type">
+            <option value="ChatGPT Plus Riêng Tư 1 tháng">🤖 ChatGPT Plus Riêng Tư 1 tháng</option>
+            <option value="ChatGPT Plus Team Chính Chủ 1 tháng">👥 ChatGPT Plus Team</option>
+            <option value="YouTube Premium 1 tháng">▶️ YouTube Premium 1 tháng</option>
+            <option value="YouTube Premium 6 tháng">▶️ YouTube Premium 6 tháng</option>
+            <option value="YouTube Premium 12 tháng">▶️ YouTube Premium 12 tháng</option>
+            <option value="YouTube Premium 18 tháng">▶️ YouTube Premium 18 tháng</option>
+            <option value="CapCut Pro 35 Ngày">🎬 CapCut Pro 35 Ngày</option>
+            <option value="CapCut Pro 6 Tháng">🎬 CapCut Pro 6 Tháng</option>
+            <option value="Netflix Premium 4K">🎥 Netflix Premium 4K</option>
+          </select>
+        </div>
+        <div class="fg" style="margin-bottom:11px;"><label>Danh sách</label>
+          <textarea id="b-data" placeholder="abc1@gmail.com|Pass1|ghi chu&#10;abc2@gmail.com|Pass2|"></textarea>
+        </div>
+        <button class="btn-a" onclick="bulkAdd()">📥 Thêm tất cả</button>
+      </div>
+    </div>
+
+    <!-- GIAO DIỆN -->
+    <div class="asec" id="tab-design">
+      <div class="acard">
+        <div class="acard-ttl">🏪 Thông tin shop</div>
+        <div class="fgrid">
+          <div class="fg"><label>Tên shop</label><input type="text" id="c-name" placeholder="Vantu Shop"></div>
+          <div class="fg"><label>Username Telegram</label><input type="text" id="c-tele" placeholder="khoga36"></div>
+          <div class="fg" style="grid-column:1/-1;"><label>Mô tả</label><input type="text" id="c-desc" placeholder="Chuyên cung cấp..."></div>
+        </div>
+        <button class="btn-a" onclick="saveInfo()">💾 Lưu</button>
+      </div>
+      <div class="acard">
+        <div class="acard-ttl">🎨 Màu sắc</div>
+        <div class="crow">
+          <div class="ci"><input type="color" id="c-p1" value="#6366f1"><label>Màu chính</label></div>
+          <div class="ci"><input type="color" id="c-p2" value="#06b6d4"><label>Màu phụ</label></div>
+          <div class="ci"><input type="color" id="c-bg" value="#09090b"><label>Nền</label></div>
+          <div class="ci"><input type="color" id="c-nav" value="#111113"><label>Navbar</label></div>
+        </div>
+        <button class="btn-a" onclick="saveColors()">🎨 Áp dụng</button>
+        <button class="btn-sec" style="margin-left:7px;" onclick="resetColors()">↩ Reset</button>
+      </div>
+      <div class="acard">
+        <div class="acard-ttl">🖼 Ảnh nền (chỉ Admin)</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.7;">
+          Chọn ảnh từ máy → tự động upload lên server → mọi người thấy ngay! ✅
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block;background:linear-gradient(135deg,var(--c-primary),var(--c-secondary));color:#fff;padding:11px;border-radius:10px;text-align:center;font-weight:700;font-size:13.5px;cursor:pointer;" for="c-img-file">
+            📁 Chọn ảnh từ máy
+          </label>
+          <input type="file" id="c-img-file" accept="image/*" style="display:none;" onchange="uploadBgImage(this)">
+          <div id="upload-status" style="margin-top:8px;font-size:12px;color:var(--muted);display:none;"></div>
+        </div>
+        <div class="fg" style="margin-bottom:10px;">
+          <label>🔗 Hoặc dán link ảnh</label>
+          <input type="text" id="c-imgurl" placeholder="https://i.imgur.com/xxxxx.jpg">
+        </div>
+        <div class="fg" style="margin-bottom:12px;">
+          <label>Độ mờ ảnh nền</label>
+          <div class="range-row">
+            <input type="range" id="c-opacity" min="0.05" max="0.6" step="0.01" value="0.18" oninput="previewOpacity()">
+            <span id="op-val" style="font-weight:700;font-size:13px;min-width:34px;">18%</span>
+          </div>
+        </div>
+        <div id="bg-preview" style="display:none;margin-bottom:10px;border-radius:8px;overflow:hidden;height:110px;background-size:cover;background-position:center;border:1px solid var(--border2);"></div>
+        <button class="btn-a" onclick="saveBgUrl()" style="margin-right:7px;">🔗 Đặt từ link</button>
+        <button class="btn-d" onclick="clearBg()">✕ Xoá nền</button>
+      </div>
+      <div class="acard">
+        <div class="acard-ttl">⚠️ Nguy hiểm</div>
+        <button class="btn-d" onclick="clearStock()">🗑 Xoá toàn bộ kho acc</button>
+      </div>
+    </div>
+
+    <!-- BẢO MẬT -->
+    <div class="asec" id="tab-security">
+      <div class="acard">
+        <div class="acard-ttl">🔐 Đổi mật khẩu Admin</div>
+        <div class="fgrid">
+          <div class="fg"><label>Mật khẩu hiện tại</label><input type="password" id="s-old" placeholder="••••••••"></div>
+          <div class="fg"><label>Mật khẩu mới</label><input type="password" id="s-new" placeholder="••••••••"></div>
+          <div class="fg"><label>Xác nhận mới</label><input type="password" id="s-cf" placeholder="••••••••"></div>
+        </div>
+        <button class="btn-a" onclick="changePw()">🔐 Đổi mật khẩu</button>
+        <div style="margin-top:10px;font-size:11px;color:var(--muted);">Mật khẩu mặc định: <strong style="color:var(--text);">vantu2025</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──
+var PRODUCTS = [
+  {id:'chatgpt', color:'blue', icon:'🤖', name:'ChatGPT Plus', desc:'Model mạnh nhất · Không giới hạn · Học tập & công việc',
+   plans:[
+    {key:'ChatGPT Plus Riêng Tư 1 tháng', label:'🔒 Riêng Tư 1 tháng', price:'30K'},
+    {key:'ChatGPT Plus Team Chính Chủ 1 tháng', label:'👥 Team Chính Chủ 1 tháng', price:'50K'}
+   ]},
+  {id:'youtube', color:'cyan', icon:'▶️', name:'YouTube Premium', desc:'Không quảng cáo · Phát nền · Tải offline · YT Music',
+   plans:[
+    {key:'YouTube Premium 1 tháng',  label:'▶️ Premium 1 tháng',  price:'30K'},
+    {key:'YouTube Premium 6 tháng',  label:'▶️ Premium 6 tháng',  price:'140K'},
+    {key:'YouTube Premium 12 tháng', label:'▶️ Premium 12 tháng', price:'260K'},
+    {key:'YouTube Premium 18 tháng', label:'▶️ Premium 18 tháng', price:'360K'}
+   ]},
+  {id:'capcut', color:'pink', icon:'🎬', name:'CapCut Pro', desc:'Hiệu ứng, template, nhạc bản quyền · Không watermark',
+   plans:[
+    {key:'CapCut Pro 35 Ngày', label:'🎬 Pro 35 Ngày (BHF)', price:'26K'},
+    {key:'CapCut Pro 6 Tháng', label:'🎬 Pro 6 Tháng', price:'110K'}
+   ]},
+  {id:'netflix', color:'red', icon:'🎥', name:'Netflix Premium', desc:'4K Ultra HD · Nhiều màn hình · Hàng ngàn phim & series',
+   plans:[
+    {key:'Netflix Premium 4K', label:'🎥 Premium 4K 1 tháng', price:'65K'}
+   ]}
+];
+
+// ── STORAGE ──
+function getStock(){try{return JSON.parse(localStorage.getItem('vs_stock')||'[]');}catch{return[];}}
+function saveStock(s){localStorage.setItem('vs_stock',JSON.stringify(s));}
+function getCfg(){try{return JSON.parse(localStorage.getItem('vs_cfg')||'{}');}catch{return {};}}
+function saveCfg(c){localStorage.setItem('vs_cfg',JSON.stringify(c));}
+function getPass(){return localStorage.getItem('vs_pw')||'vantu2025';}
+
+function countAvail(key){return getStock().filter(function(a){return !a.sold && a.type===key;}).length;}
+
+// ── RENDER PRODUCTS ──
+function renderProducts(){
+  var grid = document.getElementById('pgrid');
+  var html = '';
+  for(var i=0;i<PRODUCTS.length;i++){
+    var p = PRODUCTS[i];
+    var total = 0;
+    for(var j=0;j<p.plans.length;j++) total += countAvail(p.plans[j].key);
+    var badge = total>5 ? '<div class="sbadge ok">✅ Còn '+total+'</div>'
+              : total>0 ? '<div class="sbadge low">⚡ Còn '+total+'</div>'
+              : '<div class="sbadge empty">Liên hệ đặt</div>';
+    var plans = '';
+    for(var j=0;j<p.plans.length;j++){
+      var pl = p.plans[j];
+      var av = countAvail(pl.key);
+      var stxt = av>0 ? 'Còn '+av+' acc' : 'Liên hệ đặt';
+      plans += '<div class="plan-row" onclick="openModal(\''+pl.key+'\',\''+pl.label+'\',\''+pl.price+'\')">'
+             + '<div class="plan-l"><div class="plan-n">'+pl.label+'</div><div class="plan-s">'+stxt+'</div></div>'
+             + '<div class="plan-r"><div class="plan-p">'+pl.price+'</div><div class="plan-c">Nhấn để mua</div></div>'
+             + '</div>';
+    }
+    html += '<div class="pcard '+p.color+'" data-id="'+p.id+'" style="animation-delay:'+(i*0.07)+'s">'
+          + badge
+          + '<div class="pcard-head"><div class="pcard-ico">'+p.icon+'</div>'
+          + '<div class="pcard-info"><div class="pcard-name">'+p.name+'</div><div class="pcard-desc">'+p.desc+'</div></div></div>'
+          + '<div class="pcard-plans">'+plans+'</div>'
+          + '</div>';
+  }
+  grid.innerHTML = html;
+}
+
+// ── MODAL ──
+var curKey='',curLabel='',curPrice='';
+function openModal(key,label,price){
+  curKey=key; curLabel=label; curPrice=price;
+  var av = countAvail(key);
+  document.getElementById('m-chip').textContent = '🛒 '+label;
+  document.getElementById('m-name').textContent = label;
+  document.getElementById('m-price').textContent = price;
+  document.getElementById('m-stock').innerHTML = av>0
+    ? '<span style="color:#4ade80;">✅ Còn '+av+' acc sẵn</span>'
+    : '<span style="color:#fbbf24;">⚡ Liên hệ để đặt</span>';
+  document.getElementById('m-note').value='';
+  updateTeleBtn();
+  document.getElementById('m-note').addEventListener('input',updateTeleBtn);
+  document.body.style.overflow='hidden';
+}
+// ── TELEGRAM LINKS ──
+var _teleUrl = 'https://t.me/khoga36';
+var _teleBuyUrl = 'https://t.me/khoga36';
+function openTele(){ window.open(_teleUrl,'_blank'); }
+function goTele(){ window.open(_teleBuyUrl,'_blank'); }
+
+function updateTeleBtn(){
+  var note=document.getElementById('m-note').value;
+  var tele=getCfg().tele||'khoga36';
+  var msg='Xin chào @'+tele+', mình muốn mua:\n📦 '+curLabel+'\n💰 Giá: '+curPrice+(note?'\n📝 Ghi chú: '+note:'');
+  _teleBuyUrl='https://t.me/'+tele+'?text='+encodeURIComponent(msg);
+}
+function closeModal(){
+  document.getElementById('buyModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+// ── DRAWER ──
+function openDrawer(){
+  document.getElementById('drw').classList.add('open');
+  document.getElementById('drw-ov').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeDrawer(){
+  document.getElementById('drw').classList.remove('open');
+  document.getElementById('drw-ov').classList.remove('open');
+  document.body.style.overflow='';
+}
+function scrollTo(id){
+  var el = document.querySelector('[data-id="'+id+'"]');
+  if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+// ── ADMIN ──
+function openPwGate(){
+  document.getElementById('pw-gate').classList.add('open');
+  document.getElementById('pw-inp').value='';
+  document.getElementById('pw-err').style.display='none';
+  setTimeout(function(){document.getElementById('pw-inp').focus();},100);
+}
+function closePwGate(){document.getElementById('pw-gate').classList.remove('open');}
+function checkPw(){
+  var v = document.getElementById('pw-inp').value;
+  if(v===getPass()){closePwGate();openAdmin();}
+  else{document.getElementById('pw-err').style.display='block';document.getElementById('pw-inp').value='';}
+}
+function openAdmin(){
+  document.getElementById('admin').style.display='block';
+  document.body.style.overflow='hidden';
+  renderStats(); renderList(); loadDesign();
+  switchTab('stock');
+}
+function closeAdmin(){
+  document.getElementById('admin').style.display='none';
+  document.body.style.overflow='';
+  renderProducts();
+}
+function switchTab(n){
+  var tabs=['stock','add','design','security'];
+  document.querySelectorAll('.atab').forEach(function(el,i){el.classList.toggle('active',tabs[i]===n);});
+  document.querySelectorAll('.asec').forEach(function(el){el.classList.remove('active');});
+  document.getElementById('tab-'+n).classList.add('active');
+}
+
+// ── ACC MANAGEMENT ──
+function addAcc(){
+  var type=document.getElementById('a-type').value;
+  var email=document.getElementById('a-email').value.trim();
+  var pass=document.getElementById('a-pass').value.trim();
+  var note=document.getElementById('a-note').value.trim();
+  if(!email||!pass){toast('Nhập email và mật khẩu!','err');return;}
+  var s=getStock();
+  s.push({id:Date.now(),type:type,email:email,pass:pass,note:note,sold:false});
+  saveStock(s);
+  document.getElementById('a-email').value='';
+  document.getElementById('a-pass').value='';
+  document.getElementById('a-note').value='';
+  toast('✅ Đã thêm acc!','ok');
+  renderStats(); renderList();
+}
+function bulkAdd(){
+  var type=document.getElementById('b-type').value;
+  var lines=document.getElementById('b-data').value.trim().split('\n').filter(function(l){return l.trim();});
+  if(!lines.length){toast('Nhập ít nhất 1 dòng!','err');return;}
+  var s=getStock(); var cnt=0;
+  lines.forEach(function(line){
+    var p=line.split('|');
+    var email=(p[0]||'').trim();
+    var pass=(p[1]||'').trim();
+    var note=(p[2]||'').trim();
+    if(email&&pass){s.push({id:Date.now()+Math.random(),type:type,email:email,pass:pass,note:note,sold:false});cnt++;}
+  });
+  saveStock(s);
+  document.getElementById('b-data').value='';
+  toast('✅ Đã thêm '+cnt+' acc!','ok');
+  renderStats(); renderList();
+}
+function delAcc(id){
+  if(!confirm('Xoá acc này?'))return;
+  saveStock(getStock().filter(function(a){return a.id!==id;}));
+  toast('🗑 Đã xoá','ok'); renderStats(); renderList();
+}
+function toggleSold(id){
+  var s=getStock();
+  var i=s.findIndex(function(a){return a.id===id;});
+  if(i>-1){s[i].sold=!s[i].sold;saveStock(s);}
+  renderStats(); renderList();
+}
+function clearStock(){
+  if(!confirm('Xoá TOÀN BỘ kho acc?'))return;
+  saveStock([]);
+  toast('🗑 Đã xoá toàn bộ','ok'); renderStats(); renderList();
+}
+function renderStats(){
+  var s=getStock();
+  var tot=s.length, av=s.filter(function(a){return !a.sold;}).length, sold=s.filter(function(a){return a.sold;}).length;
+  var types=[...new Set(s.map(function(a){return a.type;}))].length;
+  document.getElementById('stats').innerHTML=
+    '<div class="sbox"><div class="snum" style="color:#818cf8;">'+tot+'</div><div class="slbl">Tổng</div></div>'+
+    '<div class="sbox"><div class="snum" style="color:#4ade80;">'+av+'</div><div class="slbl">Còn lại</div></div>'+
+    '<div class="sbox"><div class="snum" style="color:#f87171;">'+sold+'</div><div class="slbl">Đã bán</div></div>'+
+    '<div class="sbox"><div class="snum" style="color:#fbbf24;">'+types+'</div><div class="slbl">Loại SP</div></div>';
+}
+function renderList(){
+  var fl=document.getElementById('fl-type').value;
+  var s=getStock().filter(function(a){return !fl||a.type===fl;});
+  var types=[...new Set(getStock().map(function(a){return a.type;}))];
+  var sel=document.getElementById('fl-type');
+  var cur=sel.value;
+  sel.innerHTML='<option value="">Tất cả</option>'+types.map(function(t){return '<option value="'+t+'"'+(t===cur?' selected':'')+'>'+t+'</option>';}).join('');
+  if(!s.length){document.getElementById('acc-list').innerHTML='<div style="text-align:center;color:var(--muted);padding:20px;font-size:12.5px;">Kho trống</div>';return;}
+  document.getElementById('acc-list').innerHTML=s.map(function(a){
+    return '<div class="acc-item'+(a.sold?' sold':'')+'">'+
+      '<div class="ai-info">'+
+      '<div class="ai-type">'+a.type+'</div>'+
+      '<div class="ai-cred">'+a.email+' · <span style="color:var(--muted)">🔑 '+a.pass+'</span></div>'+
+      (a.note?'<div class="ai-note">📝 '+a.note+'</div>':'')+
+      '</div>'+
+      '<div class="ai-btns">'+
+      '<button class="'+(a.sold?'btn-ok':'btn-sec')+'" onclick="toggleSold('+a.id+')">'+(a.sold?'↩ Hoàn':'✓ Đã bán')+'</button>'+
+      '<button class="btn-d" onclick="delAcc('+a.id+')">🗑</button>'+
+      '</div></div>';
+  }).join('');
+}
+
+// ── DESIGN / CONFIG ──
+function loadDesign(){
+  var c=getCfg();
+  if(c.name) document.getElementById('c-name').value=c.name;
+  if(c.tele) document.getElementById('c-tele').value=c.tele;
+  if(c.desc) document.getElementById('c-desc').value=c.desc;
+  if(c.p1)   document.getElementById('c-p1').value=c.p1;
+  if(c.p2)   document.getElementById('c-p2').value=c.p2;
+  if(c.bg)   document.getElementById('c-bg').value=c.bg;
+  if(c.nav)  document.getElementById('c-nav').value=c.nav;
+}
+function saveInfo(){
+  var c=getCfg();
+  c.name=document.getElementById('c-name').value||'Vantu Shop';
+  c.tele=document.getElementById('c-tele').value||'khoga36';
+  c.desc=document.getElementById('c-desc').value||'';
+  saveCfg(c); applyConfig(c);
+  toast('💾 Đã lưu!','ok');
+}
+function saveColors(){
+  var c=getCfg();
+  c.p1=document.getElementById('c-p1').value;
+  c.p2=document.getElementById('c-p2').value;
+  c.bg=document.getElementById('c-bg').value;
+  c.nav=document.getElementById('c-nav').value;
+  saveCfg(c); applyConfig(c);
+  toast('🎨 Đã áp dụng màu!','ok');
+}
+function resetColors(){
+  var c=getCfg();
+  delete c.p1;delete c.p2;delete c.bg;delete c.nav;
+  saveCfg(c); applyConfig(c);
+  document.getElementById('c-p1').value='#6366f1';
+  document.getElementById('c-p2').value='#06b6d4';
+  document.getElementById('c-bg').value='#09090b';
+  document.getElementById('c-nav').value='#111113';
+  toast('↩ Đã reset màu','ok');
+}
+// ── SUPABASE CONFIG ──
+var SB_URL = 'https://wcnffzduxfznjmrrfwyb.supabase.co';
+var SB_KEY = 'sb_publishable_X2UhlVl3z1NBoZ4LoxjRtA_X29ibgyB';
+
+function sbGet(key, cb){
+  fetch(SB_URL+'/rest/v1/settings?key=eq.'+key+'&select=value', {
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+  }).then(function(r){return r.json();}).then(function(d){
+    cb(d&&d[0]?d[0].value:null);
+  }).catch(function(){cb(null);});
+}
+function sbSet(key, value){
+  fetch(SB_URL+'/rest/v1/settings?key=eq.'+key, {
+    method:'PATCH',
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify({value:value})
+  });
+}
+
+function uploadBgImage(input){
+  var file=input.files[0];
+  if(!file) return;
+  var status=document.getElementById('upload-status');
+  status.style.display='block';
+  status.style.color='#fbbf24';
+  status.textContent='⏳ Đang upload...';
+  var op=parseFloat(document.getElementById('c-opacity').value)||0.18;
+  var ext=file.name.split('.').pop();
+  var fileName='bg_'+Date.now()+'.'+ext;
+  fetch(SB_URL+'/storage/v1/object/images/'+fileName,{
+    method:'POST',
+    headers:{
+      'apikey':SB_KEY,
+      'Authorization':'Bearer '+SB_KEY,
+      'Content-Type':file.type,
+      'Cache-Control':'3600',
+      'x-upsert':'true'
+    },
+    body:file
+  }).then(function(r){
+    if(!r.ok) throw new Error(r.status);
+    var publicUrl=SB_URL+'/storage/v1/object/public/images/'+fileName;
+    sbSet('bg_image',publicUrl);
+    sbSet('bg_opacity',String(op));
+    var c=getCfg(); c.bgImg=publicUrl; c.bgOp=op; saveCfg(c);
+    applyBg(publicUrl,op);
+    showBgPreview(publicUrl);
+    status.style.color='#4ade80';
+    status.textContent='✅ Upload thành công! Mọi người thấy ngay!';
+    toast('🖼 Đã đặt ảnh nền!','ok');
+  }).catch(function(e){
+    status.style.color='#f87171';
+    status.textContent='❌ Lỗi: '+e.message+'. Thử dán link ảnh bên dưới!';
+  });
+}
+
+
+function previewOpacity(){
+  var v=document.getElementById('c-opacity').value;
+  document.getElementById('op-val').textContent=Math.round(v*100)+'%';
+  document.getElementById('bg-layer').style.opacity=v;
+}
+function showBgPreview(url){
+  var p=document.getElementById('bg-preview');
+  if(url){p.style.display='block';p.style.backgroundImage='url('+url+')';}
+  else{p.style.display='none';}
+}
+function applyBg(url, op){
+  var bg=document.getElementById('bg-layer');
+  if(url){bg.style.backgroundImage='url('+url+')';bg.style.opacity=op||0.18;}
+  else{bg.style.backgroundImage='none';bg.style.opacity='0';}
+}
+function saveBgUrl(){
+  var url=document.getElementById('c-imgurl').value.trim();
+  if(!url){toast('Nhập link ảnh trước!','err');return;}
+  var op=parseFloat(document.getElementById('c-opacity').value)||0.18;
+  // Lưu local
+  var c=getCfg(); c.bgImg=url; c.bgOp=op; saveCfg(c);
+  // Lưu lên Supabase để mọi người thấy
+  sbSet('bg_image', url);
+  sbSet('bg_opacity', String(op));
+  applyBg(url, op);
+  showBgPreview(url);
+  toast('🖼 Đã đặt ảnh nền! Mọi người sẽ thấy ngay!','ok');
+}
+function clearBg(){
+  var c=getCfg(); delete c.bgImg; saveCfg(c);
+  sbSet('bg_image', '');
+  applyBg(null, 0);
+  showBgPreview(null);
+  toast('↩ Đã xoá ảnh nền','ok');
+}
+// Load ảnh nền từ Supabase khi mở trang
+function loadBgFromCloud(){
+  sbGet('bg_image', function(url){
+    if(!url) return;
+    sbGet('bg_opacity', function(op){
+      applyBg(url, parseFloat(op)||0.18);
+    });
+  });
+}
+function applyConfig(c){
+  var r=document.documentElement.style;
+  if(c.p1)  r.setProperty('--c-primary',c.p1);  else r.removeProperty('--c-primary');
+  if(c.p2)  r.setProperty('--c-secondary',c.p2); else r.removeProperty('--c-secondary');
+  if(c.bg)  r.setProperty('--c-bg',c.bg);        else r.removeProperty('--c-bg');
+  if(c.nav) r.setProperty('--c-nav',c.nav);      else r.removeProperty('--c-nav');
+  var name=c.name||'Vantu Shop';
+  var tele=c.tele||'khoga36';
+  var desc=c.desc||'Chuyên cung cấp tài khoản Premium giá tốt nhất. Uy tín — Nhanh chóng — Hỗ trợ 24/7.';
+  document.getElementById('site-title').textContent=name;
+  document.getElementById('nl-char').textContent=name.charAt(0).toUpperCase();
+  document.getElementById('nl-name').textContent=name;
+  document.getElementById('dl-char').textContent=name.charAt(0).toUpperCase();
+  document.getElementById('dl-name').textContent=name;
+  document.getElementById('hero-title').textContent=name;
+  document.getElementById('hero-sub').textContent=desc;
+  document.getElementById('ft-name').textContent=name;
+  var teleUrl='https://t.me/'+tele;
+  _teleUrl = teleUrl;
+  document.getElementById('nav-tele').querySelector('span').textContent='@'+tele;
+  document.getElementById('drw-tele-btn').textContent='✈️ Nhắn @'+tele+' ngay';
+  document.getElementById('ft-tele').textContent='@'+tele;
+  var bg=document.getElementById('bg-layer');
+  if(c.bgImg){bg.style.backgroundImage='url('+c.bgImg+')';bg.style.opacity=c.bgOp||0.18;}
+  else{bg.style.backgroundImage='none';bg.style.opacity='0';}
+}
+
+// ── SECURITY ──
+function changePw(){
+  var old=document.getElementById('s-old').value;
+  var nw=document.getElementById('s-new').value;
+  var cf=document.getElementById('s-cf').value;
+  if(old!==getPass()){toast('Sai mật khẩu hiện tại!','err');return;}
+  if(!nw||nw.length<4){toast('Mật khẩu mới ít nhất 4 ký tự!','err');return;}
+  if(nw!==cf){toast('Xác nhận không khớp!','err');return;}
+  localStorage.setItem('vs_pw',nw);
+  document.getElementById('s-old').value='';
+  document.getElementById('s-new').value='';
+  document.getElementById('s-cf').value='';
+  toast('✅ Đã đổi mật khẩu!','ok');
+}
+
+// ── TOAST ──
+var toastTimer;
+function toast(msg,type){
+  var el=document.getElementById('toast');
+  el.textContent=msg;
+  el.className='toast show '+(type||'ok');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){el.classList.remove('show');},2600);
+}
+
+// ── RAIN & PETALS ──
+(function(){
+  var canvas=document.getElementById('fx-canvas');
+  var ctx=canvas.getContext('2d');
+  var W,H,drops=[],petals=[];
+  function rnd(a,b){return a+Math.random()*(b-a);}
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  resize();
+  window.addEventListener('resize',function(){resize();init();});
+  function initDrop(){return{x:rnd(0,W),y:rnd(-H,0),len:rnd(10,22),speed:rnd(8,18),alpha:rnd(.1,.32),w:rnd(.5,1.2)};}
+  function initPetal(rand){return{x:rnd(0,W),y:rand?rnd(-50,H):rnd(-60,-10),size:rnd(7,15),vy:rnd(.8,2.2),vx:rnd(-.8,.8),angle:rnd(0,Math.PI*2),spin:rnd(-.03,.03),alpha:rnd(.5,.88),hue:rnd(330,360)};}
+  function init(){
+    drops=[];for(var i=0;i<80;i++)drops.push(initDrop());
+    petals=[];for(var i=0;i<18;i++)petals.push(initPetal(true));
+  }
+  init();
+  function drawRain(){
+    for(var i=0;i<drops.length;i++){
+      var d=drops[i];
+      ctx.beginPath();
+      ctx.strokeStyle='rgba(180,220,255,'+d.alpha+')';
+      ctx.lineWidth=d.w;
+      ctx.moveTo(d.x,d.y);
+      ctx.lineTo(d.x-d.len*.15,d.y+d.len);
+      ctx.stroke();
+      d.y+=d.speed;d.x-=d.speed*.05;
+      if(d.y>H){d.y=rnd(-30,-5);d.x=rnd(0,W);}
+    }
+  }
+  function drawPetals(){
+    for(var i=0;i<petals.length;i++){
+      var p=petals[i];
+      ctx.save();
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.angle);
+      ctx.globalAlpha=p.alpha;
+      ctx.beginPath();
+      ctx.ellipse(0,0,p.size*.45,p.size,0,0,Math.PI*2);
+      var g=ctx.createRadialGradient(0,-p.size*.3,0,0,0,p.size);
+      g.addColorStop(0,'hsla('+p.hue+',90%,85%,1)');
+      g.addColorStop(1,'hsla('+p.hue+',80%,60%,.6)');
+      ctx.fillStyle=g;
+      ctx.fill();
+      ctx.restore();
+      p.y+=p.vy;p.x+=p.vx+Math.sin(p.y*.02)*.4;p.angle+=p.spin;
+      if(p.y>H+20)petals[i]=initPetal(false);
+    }
+  }
+  function animate(){
+    ctx.clearRect(0,0,W,H);
+    drawRain();
+    drawPetals();
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
+// ── INIT ──
+applyConfig(getCfg());
+renderProducts();
+loadBgFromCloud();
+if(new URLSearchParams(location.search).get('admin')==='vantu') openAdmin();
+</script>
+</body>
+</html>
